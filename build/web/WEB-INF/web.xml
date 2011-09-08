@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <filter>
+        <description>This Filter opens an active JDBC connection to a database from jndi (connection pooling)</description>
+        <filter-name>ActiveJDBCFilter</filter-name>
+        <filter-class>pserver.ActiveJDBCFilter</filter-class>
+        <init-param>
+            <description>connection pooling jndi</description>
+            <param-name>dbConnection</param-name>
+            <param-value>jdbc/picalag_pserver</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>ActiveJDBCFilter</filter-name>
+        <servlet-name>PicalagPserverServlet</servlet-name>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>PicalagPserverServlet</servlet-name>
+        <servlet-class>pserver.PicalagPserverServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PicalagPserverServlet</servlet-name>
+        <url-pattern>/API/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>

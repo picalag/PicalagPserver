@@ -1,0 +1,458 @@
+SEE DISSERTATION FOR BETTER FORMATING
+
+PServer Back-end application
+
+Installation instructions
+
+Install and configure Java SDK, Glassfish and MySQL.
+
+Get sources from [http//github.com/picalag||http://github.com/picalag].
+
+Database
+
+Create a database “picalag_pserver” and load the structure picalag_pserver.sql file.
+
+If it is not done already, configure and start a GlassFish domain.
+
+Setup connection pool following tutorial on [http://www.albeesonline.com/blog/2008/08/06/creating-and-configuring-a-mysql-datasource-in-glassfish-application-server/||http://www.albeesonline.com/blog /2008 /08 /06 /creating-and-configuring-a-mysql-datasource-in-glassfish-application-server/]. The name of the resource is “jdbc/picalag_pserver” (this can be changed on web.xml config file in sources).
+
+Source compilation
+
+ActiveJDBC requires class Instrumentation to work (it adds some magical byte code to the models after compilation). Details about this step can be found in this project's wiki: [http://code.google.com/p/activejdbc/wiki/Instrumentation||http://code.google.com/p/activejdbc/wiki/Instrumentation].
+
+If NetBeans is used as IDE, a simple integration method is given on this page: [http://code.google.com/p/activejdbc/wiki/NetbeansIntegration||http://code.google.com/p/activejdbc/wiki/NetbeansIntegration].
+
+Once compiled as a Java web application, an archive *.war should be generated, containing the deployable program including all dependencies (size around 19Mb).
+
+Deployment
+
+To deploy the application in Glassfish, open the admin panel in a web browser. On the menu choose “application” and select the “*.war” archive to deploy it. That is all, the application is running. You can try to call the /API/ping method to check it is working (see API documentation below).
+
+
+
+
+RESTful API
+
+All these methods can be accessed either with a GET or a POST request.
+
+/API/post_event
+
+Adds a new event to PServer DB
+
+Parameters:
+
+MM id_event (int) event ID in calagator
+
+MM title (string) event title in calagator
+
+MM description (string) event description in calagator
+
+MM venue (string) venue name in calagator 
+
+MM id_venue (int) venue ID in calagator
+
+MM tags (string) event tags (delimited with “,”)
+
+MM date (string) event start date: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm"
+
+/API/post_venue
+
+Adds a new venue to PServer DB
+
+Parameter: 
+
+MM id_venue (int) venue ID in calagator
+
+/API/add_user
+
+Creates a new user or updates an existing user in PServer DB
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM male (boolean) "true" if male, "false" if female
+
+MM dob (string) date of birth: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm"
+
+/API/rate_event
+
+Called when a user rates an event
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM id_event (int) event ID in calagator
+
+MM rating (mixed) rating value Possible types for *rating*:(int) an explicit rating(string) based on an implicit rating event ("disliked", "neutral", "viewed", "added", "liked", "shared")
+
+/API/view_event
+
+A user views an event: both event feature vector and user profile should be updated
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM id_event (int) event ID in calagator
+
+/API/never_again
+
+Removes the event features from user's profile and rate it as disliked event
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM id_event (int) event ID in calagator
+
+/API/add_venue_to_favorite
+
+Adds a venue to user's favorite venues list
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM id_venue (int) venue ID in calagator
+
+/API/del_venue_from_favorite
+
+Removes a venue from user's favorite venues list
+
+Parameters:
+
+MM id_user (int) user ID in calagator 
+
+MM id_venue (int) venue ID in calagator
+
+/API/get_favorite_venues
+
+Returns an XML with user's favorite venues list of calagator IDs
+
+Parameter:
+
+MM id_user (int) user ID in calagator
+
+Ouput:
+
+<picalag>
+
+<favorite_venues>
+
+<venue>130</venue>
+
+...
+
+</favorite_venues> 
+
+</picalag>
+
+/API/get_recommendations_CB_event
+
+Returns an XML with recommended events by a content-based recommender system. Recommendations are events similar to *id_event* event
+
+Parameters:
+
+MM id_event (int) event ID in calagator
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5)
+
+MM date (string) *optional* date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm" (default = same date as the *id_event* event)
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>38</id>
+
+<distance>0.7999999999999998</distance>
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_CB_user
+
+returns an XML with recommended events by a content-based recommender system. Recommendations are events similar to *id_user* user's profile
+
+Parameters:
+
+MM id_user (int) user ID in calagator
+
+MM date (string) date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm"
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5)
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>38</id>
+
+<distance>0.7999999999999998</distance>
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_CF_event
+
+Returns an XML with recommended events by a collaborative filtering recommender system (ItemBased). Recommendations are events similar to *id_event* event
+
+Parameters: 
+
+MM id_event (int) event ID in calagator 
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5) 
+
+MM date (string) *optional* date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm" (default = same date as the *id_event* event)
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>38</id>
+
+<distance>0.7999999999999998</distance>
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_CF_user 
+
+Returns an XML with recommended events by a collaborative filtering recommender system (UserBased). Recommendations are events similar to *id_user* user's neighbourhood interest
+
+Parameters: 
+
+MM id_user (int) user ID in calagator 
+
+MM date (string) date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm" 
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5)
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>38</id>
+
+<neighbour_rating>1</neighbour_rating>
+
+<neighbour_rating>5</neighbour_rating>
+
+...
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_venues
+
+Returns an XML with recommended venues by a collaborative filtering recommender system (SlopeOne). Recommendations are venues similar to *id_user* user's favorite venues
+
+Parameters:
+
+MM id_user (int) user ID in calagator 
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5)
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<venue>
+
+<id>320</id>
+
+<similar>405</similar>
+
+<similar>245</similar>
+
+...
+
+</venue>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_most_popular_events
+
+Returns an XML with the most popular events (according to the sum of ratings)
+
+Parameters: 
+
+MM date (string) date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm" 
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5) 
+
+MM id_user (int) *optional* user ID in calagator, if given, events known by this user won't be recommended
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>1</id>
+
+<grade>5</grave>
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_most_popular_venues
+
+Returns an XML with the most popular venues (according to the number of user having them on their favorite list)
+
+Parameters:
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5) 
+
+MM id_user (int) *optional* user ID in calagator, if given, venues already in this user's favorite list won't be recommended
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<venue>
+
+<id>1</id>
+
+<fans>10</fans>
+
+</venue>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_random_events 
+
+Returns an XML with random events (according to the sum of ratings) 
+
+Parameters:
+
+MM date (string) date of recommended events: format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm" 
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5) 
+
+MM id_user (int) *optional* user ID in calagator, if given, events known by this user won't be recommended
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<event>
+
+<id>38</id>
+
+</event>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/get_recommendations_random_venues
+
+Returns an XML with random venues (according to the number of user having them on their favorite list)
+
+Parameters:
+
+MM nb_recs (int) *optional* maximum number of recommendations (default = 5) 
+
+MM id_user (int) *optional* user ID in calagator, if given, venues already in this user's favorite list won't be recommended
+
+Output:
+
+<picalag>
+
+<recommendations>
+
+<venue>
+
+<id>1</id>
+
+</venue>
+
+...
+
+</recommendations>
+
+</picalag>
+
+/API/is_favorite_venue
+
+Returns "true" if the venue *id_venue* is one of *id_user*'s favorite
+
+Parameters:
+
+MM id_user (int) user ID in calagator 
+
+MM id_venue (int) venue ID in calagator
+
+/API/get_rating 
+
+Returns user's rating for an event Parameter: id_user (int) user ID in calagator 
+
+Parameter:
+
+MM id_event (int) event ID in calagator
+
+/API/ping
+
+Sends OK status if server is running
